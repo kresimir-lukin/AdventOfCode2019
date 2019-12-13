@@ -60,6 +60,7 @@ class RelativeBaseOffsetInstruction(Instruction):
 class HaltInstruction(Instruction):
     code, argument_num = 99, 0
     def execute(self, intcode, arguments):
+        intcode.halted = True
         return None
 
 class Argument:
@@ -75,6 +76,7 @@ class IntCode:
         self.relative_base = 0
         self.memory = {}
         self.output = None
+        self.halted = False
         self.pc = 0
 
     def _get_instruction(self, instruction_code):
@@ -93,17 +95,18 @@ class IntCode:
 
     def run(self):
         self.output = None
-        while self.pc is not None and self.output is None:
+        while not self.halted and self.output is None:
             instruction = self._get_instruction(self.program[self.pc] % 100)
             arguments = self._parse_arguments(instruction.argument_num)
             self.pc = instruction().execute(self, arguments)
-        return self.pc is None, self.output
+        return self.output
 
     def execute(self):
-        last_output, halted = None, False
-        while not halted:
-            halted, output = self.run()
-            last_output = output if output is not None else last_output
+        last_output = None
+        while not self.halted:
+            output = self.run()
+            if not self.halted:
+                last_output = output
         return last_output
 
     def get(self, address):

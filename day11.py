@@ -5,12 +5,11 @@ def paint_execute(code, initial_color):
     program = intcode.IntCode(code)
     x = y = direction = 0
     panel = { (x, y): initial_color }
-    halted = False
-    while not halted:
+    while not program.halted:
         program.input(panel[(x, y)] if (x, y) in panel else 0)
-        halted, output1 = program.run()
-        halted, output2 = program.run()
-        if not halted:
+        output1 = program.run()
+        output2 = program.run()
+        if not program.halted:
             panel[(x, y)] = output1
             direction = ((direction + 1) if output2 == 1 else (direction - 1 + len(directions))) % len(directions)
             x, y = x + directions[direction][0], y + directions[direction][1]
