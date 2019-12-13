@@ -1,9 +1,5 @@
 import sys
 
-assert len(sys.argv) == 2
-wire1_path, wire2_path = open(sys.argv[1]).read().split()
-wire1_path, wire2_path = wire1_path.split(','), wire2_path.split(',')
-
 def calc_points_with_steps(path):
     curx = cury = step = 0
     directions = {'R': (1,0), 'L': (-1,0), 'U': (0,1), 'D': (0,-1)}
@@ -17,6 +13,10 @@ def calc_points_with_steps(path):
             if (curx, cury) not in points:
                 points[(curx, cury)] = step
     return points
+
+assert len(sys.argv) == 2
+wire1_path, wire2_path = open(sys.argv[1]).read().split()
+wire1_path, wire2_path = wire1_path.split(','), wire2_path.split(',')
 
 wire1_points = calc_points_with_steps(wire1_path)
 wire2_points = calc_points_with_steps(wire2_path)

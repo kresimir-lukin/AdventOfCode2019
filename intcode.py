@@ -8,19 +8,19 @@ class Instruction:
 class PlusInstruction(Instruction):
     code, argument_num = 1, 3
     def execute(self, intcode, arguments):
-        intcode.update(arguments[2].address, arguments[0].value + arguments[1].value)
+        intcode.set(arguments[2].address, arguments[0].value + arguments[1].value)
         return self.new_pc(intcode)
 
 class MultiplyInstruction(Instruction):
     code, argument_num = 2, 3
     def execute(self, intcode, arguments):
-        intcode.update(arguments[2].address, arguments[0].value * arguments[1].value)
+        intcode.set(arguments[2].address, arguments[0].value * arguments[1].value)
         return self.new_pc(intcode)
 
 class InputInstruction(Instruction):
     code, argument_num = 3, 1
     def execute(self, intcode, arguments):
-        intcode.update(arguments[0].address, intcode.pop_input())
+        intcode.set(arguments[0].address, intcode.inputs.pop())
         return self.new_pc(intcode)
 
 class OutputInstruction(Instruction):
@@ -42,19 +42,19 @@ class JumpIfFalseInstruction(Instruction):
 class LessThanInstruction(Instruction):
     code, argument_num = 7, 3
     def execute(self, intcode, arguments):
-        intcode.update(arguments[2].address, int(arguments[0].value < arguments[1].value))
+        intcode.set(arguments[2].address, int(arguments[0].value < arguments[1].value))
         return self.new_pc(intcode)
 
 class EqualsInstruction(Instruction):
     code, argument_num = 8, 3
     def execute(self, intcode, arguments):
-        intcode.update(arguments[2].address, int(arguments[0].value == arguments[1].value))
+        intcode.set(arguments[2].address, int(arguments[0].value == arguments[1].value))
         return self.new_pc(intcode)
         
 class RelativeBaseOffsetInstruction(Instruction):
     code, argument_num = 9, 1
     def execute(self, intcode, arguments):
-        intcode.update_relative_base(arguments[0].value)
+        intcode.relative_base += arguments[0].value
         return self.new_pc(intcode)
 
 class HaltInstruction(Instruction):
@@ -68,7 +68,7 @@ class Argument:
         self.address = address
         
 class IntCode:
-    def __init__(self, program, inputs):
+    def __init__(self, program, inputs=[]):
         self.program = program[:]
         self.inputs = inputs[::-1]
         self.relative_base = 0
@@ -96,29 +96,21 @@ class IntCode:
             instruction = self._get_instruction(self.program[self.pc] % 100)
             arguments = self._parse_arguments(instruction.argument_num)
             self.pc = instruction().execute(self, arguments)
-        return self.pc is None
+        return self.pc is None, self.output
 
     def execute(self):
         last_output, halted = None, False
         while not halted:
-            last_output = self.output
-            halted = self.run()
+            halted, output = self.run()
+            last_output = output if output is not None else last_output
         return last_output
 
     def get(self, address):
         return self.program[address] if address < len(self.program) else self.memory.get(value + self.relative_base, 0)
 
-    def update(self, address, value):
-        if address < len(self.program):
-            self.program[address] = value
-        else:
-            self.memory[address] = value
+    def set(self, address, value):
+        target = self.program if address < len(self.program) else self.memory
+        target[address] = value
 
-    def pop_input(self):
-        return self.inputs.pop()
-
-    def add_input(self, value):
+    def input(self, value):
         self.inputs = [value] + self.inputs
-    
-    def update_relative_base(self, value):
-        self.relative_base += value

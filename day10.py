@@ -1,9 +1,5 @@
 import sys, math
 
-assert len(sys.argv) == 2
-asteroid_map = open(sys.argv[1]).read().split()
-asteroid_coordinates = [(x, y) for y, row in enumerate(asteroid_map) for x, value in enumerate(row) if value == '#']
-
 def get_monitoring_point(coordinates):
     max_asteroids = 0
     best_x = best_y = 0
@@ -32,6 +28,10 @@ def get_vaporization_order(coordinates, mx, my):
                     closest_points[(dx, dy)] = (x, y)
         vaporized += sorted(closest_points.values(), key=lambda p:-math.atan2(p[0] - mx, p[1] - my))
     return vaporized
+
+assert len(sys.argv) == 2
+asteroid_map = open(sys.argv[1]).read().split()
+asteroid_coordinates = [(x, y) for y, row in enumerate(asteroid_map) for x, value in enumerate(row) if value == '#']
 
 part1, monitoring_p = get_monitoring_point(asteroid_coordinates)
 vaporization_order = get_vaporization_order(asteroid_coordinates, monitoring_p[0], monitoring_p[1])

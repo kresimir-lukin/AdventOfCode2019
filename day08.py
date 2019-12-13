@@ -1,8 +1,5 @@
 import sys
 
-assert len(sys.argv) == 2
-data = open(sys.argv[1]).read()
-
 def build_layers(data):
     layers, n = [], width * height
     for i in range(len(data) // n):
@@ -11,6 +8,9 @@ def build_layers(data):
 
 def count_pixels(image, x):
     return sum(1 for row in image for col in row if col == x)
+
+assert len(sys.argv) == 2
+data = open(sys.argv[1]).read()
 
 width, height = 25, 6
 layers = build_layers(data)

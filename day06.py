@@ -6,9 +6,6 @@ class Node:
         self.root = True
         self.children = []
 
-assert len(sys.argv) == 2
-orbit_map = open(sys.argv[1]).read().split()
-
 def build_orbit_graph(orbit_map):
     orbit_graph = {}
     for left, right in map(lambda x:x.split(')'), orbit_map):
@@ -40,6 +37,9 @@ def minimum_transfers(graph, source, destination):
                 seen[child.code] = depth+1
                 queue.appendleft((child, depth+1))
     return seen[destination]-2
+
+assert len(sys.argv) == 2
+orbit_map = open(sys.argv[1]).read().split()
 
 orbit_graph = build_orbit_graph(orbit_map)
 part1 = count_checksums(orbit_graph)

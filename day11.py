@@ -1,19 +1,15 @@
 import sys, intcode
 
-code = list(map(int, open(sys.argv[1]).read().split(',')))
-
 def paint_execute(code, initial_color):
     directions = [(0, -1), (1, 0), (0, 1), (-1, 0)]
-    program = intcode.IntCode(code, [])
+    program = intcode.IntCode(code)
     x = y = direction = 0
     panel = { (x, y): initial_color }
     halted = False
     while not halted:
-        program.add_input(panel[(x, y)] if (x, y) in panel else 0)
-        halted = program.run()
-        output1 = program.output
-        halted = program.run()
-        output2 = program.output
+        program.input(panel[(x, y)] if (x, y) in panel else 0)
+        halted, output1 = program.run()
+        halted, output2 = program.run()
         if not halted:
             panel[(x, y)] = output1
             direction = ((direction + 1) if output2 == 1 else (direction - 1 + len(directions))) % len(directions)
@@ -27,6 +23,8 @@ def build_registration(panel_points):
             if panel_points.get((col, row), 0) == 1:
                 registration[row][col] = '*'
     return '\n'.join(''.join(row) for row in registration)
+
+code = list(map(int, open(sys.argv[1]).read().split(',')))
 
 part1 = len(paint_execute(code, 0))
 part2 = build_registration(paint_execute(code, 1))
