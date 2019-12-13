@@ -20,7 +20,7 @@ class MultiplyInstruction(Instruction):
 class InputInstruction(Instruction):
     code, argument_num = 3, 1
     def execute(self, intcode, arguments):
-        intcode.set(arguments[0].address, intcode.inputs.pop())
+        intcode.set(arguments[0].address, intcode.get_input())
         return self.new_pc(intcode)
 
 class OutputInstruction(Instruction):
@@ -68,9 +68,10 @@ class Argument:
         self.address = address
         
 class IntCode:
-    def __init__(self, program, inputs=[]):
+    def __init__(self, program, inputs=[], input_func=None):
         self.program = program[:]
         self.inputs = inputs[::-1]
+        self.input_func = input_func
         self.relative_base = 0
         self.memory = {}
         self.output = None
@@ -114,3 +115,6 @@ class IntCode:
 
     def input(self, value):
         self.inputs = [value] + self.inputs
+
+    def get_input(self):
+        return self.inputs.pop() if self.inputs else self.input_func()
