@@ -109,6 +109,17 @@ class IntCode:
                 last_output = output
         return last_output
 
+    def clone(self):
+        cloned = IntCode(self.program)
+        cloned.inputs = self.inputs[:]
+        cloned.input_func = self.input_func
+        cloned.relative_base = self.relative_base
+        cloned.memory = {key:value for key, value in self.memory.items()}
+        cloned.output = self.output
+        cloned.halted = self.halted
+        cloned.pc = self.pc
+        return cloned
+
     def get(self, address):
         return self.program[address] if address < len(self.program) else self.memory.get(value + self.relative_base, 0)
 
